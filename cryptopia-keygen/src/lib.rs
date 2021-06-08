@@ -6,7 +6,12 @@ pub enum WorkFactor {
     Custom(u8, u32, u32),
 }
 
-pub fn keygen(work_factor: &WorkFactor, passphrase: &[u8], salt: &[u8], key_len: u32) -> Vec<u8> {
+pub fn keygen(
+    work_factor: &WorkFactor,
+    passphrase: &[u8],
+    salt: &[u8],
+    key_len: u32,
+) -> Result<Vec<u8>, String> {
     let scrypt_params = match work_factor {
         WorkFactor::Recommended => Params::new(20, 8, 1),
         WorkFactor::Balanced(memory_avail) => {
@@ -21,22 +26,25 @@ pub fn keygen(work_factor: &WorkFactor, passphrase: &[u8], salt: &[u8], key_len:
         WorkFactor::Custom(log_n, r, p) => Params::new(*log_n, *r, *p),
     };
 
-    let mut scrypt_out = vec![0u8; key_len as usize];
-    scrypt(
-        passphrase,
-        salt,
-        &scrypt_params.expect("invalid parameters"),
-        &mut scrypt_out,
-    )
-    .expect("invalid output-len");
+    if let Err(e) = &scrypt_params {
+        return Err(e.to_string());
+    }
 
-    scrypt_out
+    let mut buffer = vec![0u8; key_len as usize];
+
+    let scrypt_result = scrypt(passphrase, salt, &scrypt_params.unwrap(), &mut buffer);
+
+    if let Err(e) = scrypt_result {
+        return Err(e.to_string());
+    }
+
+    Ok(buffer)
 }
 
 #[cfg(test)]
 mod tests {
     use super::{keygen, WorkFactor};
-    
+
     #[test]
     fn balanced() {
         let passphrase = b"Kubn1xG4ps";
@@ -46,7 +54,8 @@ mod tests {
         // N = 32768 (2^15)
         // r = 8
         // p = 32
-        let key = keygen(&WorkFactor::Balanced(33554432), passphrase, salt, 10);
+        let key = keygen(&WorkFactor::Balanced(33554432), passphrase, salt, 10).unwrap();
+
         let expected_result = vec![137, 142, 34, 170, 170, 102, 59, 225, 3, 53];
 
         assert_eq!(expected_result, key);
