@@ -1,5 +1,9 @@
 use scrypt::{scrypt, Params};
 
+const RECOMMENDED_N: u8 = 20;
+const RECOMMENDED_R: u32 = 8;
+const RECOMMENDED_P: u32 = 1;
+
 pub enum WorkFactor {
     Recommended,
     Balanced(usize),
@@ -13,10 +17,10 @@ pub fn keygen(
     key_len: u32,
 ) -> Result<Vec<u8>, String> {
     let scrypt_params = match work_factor {
-        WorkFactor::Recommended => Params::new(20, 8, 1),
+        WorkFactor::Recommended => Params::new(RECOMMENDED_N, RECOMMENDED_R, RECOMMENDED_P),
         WorkFactor::Balanced(memory_avail) => {
             let log_n = (*memory_avail as f64 / 128f64 / 8f64).log2() as u8;
-            if log_n < 20 {
+            if log_n < RECOMMENDED_N {
                 let p = (2u32.pow(20) / 2u32.pow(log_n as u32)) as u32;
                 Params::new(log_n, 8, p)
             } else {
