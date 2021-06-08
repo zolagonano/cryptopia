@@ -5,4 +5,4 @@ authors = ["Zola Gonano <zolagonano@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-scrypt = "0.7"
+scrypt = { version = "0.7", default-features = false }
