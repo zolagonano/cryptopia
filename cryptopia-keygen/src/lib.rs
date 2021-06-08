@@ -16,15 +16,17 @@ pub fn keygen(
     salt: &[u8],
     key_len: u32,
 ) -> Result<Vec<u8>, String> {
+    let recommended_params = Params::new(RECOMMENDED_N, RECOMMENDED_R, RECOMMENDED_P);
+
     let scrypt_params = match work_factor {
-        WorkFactor::Recommended => Params::new(RECOMMENDED_N, RECOMMENDED_R, RECOMMENDED_P),
+        WorkFactor::Recommended => recommended_params,
         WorkFactor::Balanced(memory_avail) => {
-            let log_n = (*memory_avail as f64 / 128f64 / 8f64).log2() as u8;
+            let log_n = (*memory_avail as f64 / 128f64 / RECOMMENDED_R as f64).log2() as u8;
             if log_n < RECOMMENDED_N {
-                let p = (2u32.pow(20) / 2u32.pow(log_n as u32)) as u32;
-                Params::new(log_n, 8, p)
+                let p = (2u32.pow(RECOMMENDED_N as u32) / 2u32.pow(log_n as u32)) as u32;
+                Params::new(log_n, RECOMMENDED_R, p)
             } else {
-                Params::new(20, 8, 1)
+                recommended_params
             }
         }
         WorkFactor::Custom(log_n, r, p) => Params::new(*log_n, *r, *p),
