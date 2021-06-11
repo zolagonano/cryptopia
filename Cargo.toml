@@ -1,2 +1,5 @@
 [workspace]
-members = ["cryptopia-keygen"]
+members = [
+    "cryptopia-keygen",
+    "cryptopia-filegen"
+]
