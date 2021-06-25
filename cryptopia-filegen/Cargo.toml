@@ -1,7 +1,0 @@
-[package]
-name = "cryptopia-filegen"
-version = "0.1.0"
-authors = ["Zola Gonano <zolagonano@protonmail.com>"]
-edition = "2018"
-
-[dependencies]
