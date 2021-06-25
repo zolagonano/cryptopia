@@ -1,5 +1,5 @@
 [workspace]
 members = [
     "cryptopia-keygen",
-    "cryptopia-filegen"
+    "cryptopia-file-encoding"
 ]
