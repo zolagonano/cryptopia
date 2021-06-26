@@ -1,5 +1,5 @@
 [package]
-name = "cryptopia-filegen"
+name = "cryptopia-fileg-encoding"
 version = "0.1.0"
 authors = ["Zola Gonano <zolagonano@protonmail.com>"]
 edition = "2018"
